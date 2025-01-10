@@ -30,7 +30,7 @@ wss.on('connection', (ws) => {
 
     switch (data.type) {
       case 'setUsername':
-        ws.username = data.username;
+        ws.username = data.userName;
         ws.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
         break;
 
@@ -38,7 +38,14 @@ wss.on('connection', (ws) => {
         const roomId = uuidv4();
 
         rooms[roomId] = { name: data.roomName, messages: [], users: [] };
-        ws.send(JSON.stringify({ type: 'roomCreated', roomId }));
+
+        ws.send(
+          JSON.stringify({
+            type: 'roomCreated',
+            roomId,
+            roomName: data.roomName,
+          }),
+        );
         break;
 
       case 'joinRoom':
@@ -47,9 +54,12 @@ wss.on('connection', (ws) => {
             (user) => user.ws !== ws,
           );
         }
+
         currentRoom = data.roomId;
 
         if (!rooms[currentRoom]) {
+          console.error(`Attempt to join non-existent room: ${currentRoom}`);
+
           return;
         }
 

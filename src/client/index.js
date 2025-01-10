@@ -56,7 +56,7 @@ function setUsername() {
     return;
   }
   /* eslint-disable no-undef */
-  localStorage.setItem('username', username);
+  localStorage.setItem('username', userName);
   /* eslint-enable no-undef */
 
   ws.send(JSON.stringify({ type: 'setUsername', userName }));
@@ -97,11 +97,31 @@ function sendMessage() {
 }
 
 function addMessage(message) {
+  // Перевіряємо, чи всі необхідні властивості існують у об'єкті
+  if (!message.color || !message.author || !message.time || !message.text) {
+    console.error('Message object is missing required properties:', message);
+
+    return;
+  }
+
   const chat = document.getElementById('chat');
+
+  if (!chat) {
+    console.error('Chat element not found.');
+
+    return;
+  }
+
   const msgElem = document.createElement('div');
 
   msgElem.classList.add('message');
-  msgElem.innerHTML = `<strong style="color: ${message.color}">${message.author}</strong>: <span>[${new Date(message.time).toLocaleTimeString()}]</span><p>${message.text}</p>`;
+
+  msgElem.innerHTML = `
+    <strong style="color: ${message.color}">${message.author}</strong>:
+    <span>[${new Date(message.time).toLocaleTimeString()}]</span>
+    <p>${message.text}</p>
+  `;
+
   chat.appendChild(msgElem);
 }
 
